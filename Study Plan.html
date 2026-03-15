@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khushal's Study Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2433;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --cscp: #f59e0b;
+    --cscp-dim: rgba(245,158,11,0.12);
+    --aws: #38bdf8;
+    --aws-dim: rgba(56,189,248,0.12);
+    --review: #a78bfa;
+    --review-dim: rgba(167,139,250,0.12);
+    --rest: #4ade80;
+    --rest-dim: rgba(74,222,128,0.1);
+    --danger: #f87171;
+    --success: #4ade80;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% -20%, rgba(56,189,248,0.08), transparent);
+    pointer-events: none;
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--aws);
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  h1 span { color: var(--aws); }
+  .header-sub {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 500px;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+  }
+  .nav {
+    display: flex;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 1rem 1.25rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--aws); border-bottom-color: var(--aws); }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  .panel { display: none; animation: fadeIn .25s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* ── RULE CARDS ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .rule-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .rule-card:hover { border-color: rgba(255,255,255,0.15); }
+  .rule-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .rule-card.cscp::before { background: var(--cscp); }
+  .rule-card.aws::before { background: var(--aws); }
+  .rule-card.review::before { background: var(--review); }
+  .rule-card.rest::before { background: var(--rest); }
+  .rule-num {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .rule-card.cscp .rule-num { color: var(--cscp); }
+  .rule-card.aws .rule-num { color: var(--aws); }
+  .rule-card.review .rule-num { color: var(--review); }
+  .rule-card.rest .rule-num { color: var(--rest); }
+  .rule-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .rule-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── ALERT BOXES ── */
+  .alert {
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    border-left: 3px solid;
+  }
+  .alert.warn { background: rgba(248,113,113,0.08); border-color: var(--danger); color: #fca5a5; }
+  .alert.good { background: rgba(74,222,128,0.08); border-color: var(--success); color: #86efac; }
+  .alert.info { background: var(--aws-dim); border-color: var(--aws); color: #7dd3fc; }
+  .alert strong { font-weight: 700; }
+
+  /* ── WEEK SCHEDULE ── */
+  .week-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+  }
+  .week-header:hover { background: var(--surface2); }
+  .phase-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .week-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .week-sub { font-size: 12px; color: var(--muted); }
+  .chev { width: 18px; height: 18px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+  .chev.open { transform: rotate(180deg); }
+  .week-body { display: none; padding: 0 18px 16px; }
+  .week-body.open { display: block; }
+
+  .day-row {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    width: 30px;
+    flex-shrink: 0;
+    padding-top: 4px;
+    letter-spacing: 0.05em;
+  }
+  .day-content { flex: 1; }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 5px;
+  }
+  .pill.cscp { background: var(--cscp-dim); color: var(--cscp); border: 1px solid rgba(245,158,11,0.25); }
+  .pill.aws { background: var(--aws-dim); color: var(--aws); border: 1px solid rgba(56,189,248,0.25); }
+  .pill.review { background: var(--review-dim); color: var(--review); border: 1px solid rgba(167,139,250,0.25); }
+  .pill.rest { background: var(--rest-dim); color: var(--rest); border: 1px solid rgba(74,222,128,0.2); }
+  .day-note { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .pom-row { display: flex; gap: 4px; align-items: center; margin-top: 5px; }
+  .pom { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); opacity: 0.7; }
+  .pom-text { font-size: 11px; color: var(--muted); margin-left: 2px; }
+
+  /* ── RESOURCE CARDS ── */
+  .res-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color .2s, background .2s;
+  }
+  .res-card:hover { background: var(--surface2); border-color: rgba(255,255,255,0.12); }
+  .res-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .res-body { flex: 1; min-width: 0; }
+  .res-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .res-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .tag {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .tag.free { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .tag.paid { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .tag.adhd { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .tag.top { background: rgba(56,189,248,0.15); color: #38bdf8; }
+  .res-why { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* ── CHECKLIST ── */
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .check-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .check-item:hover { background: var(--surface2); }
+  .check-item.done { opacity: 0.45; }
+  .check-box {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 2px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    font-size: 11px;
+  }
+  .check-box.checked { background: var(--success); border-color: var(--success); color: #0d0f14; font-weight: 700; }
+  .check-text { font-size: 13px; line-height: 1.45; }
+  .progress-wrap { margin-bottom: 1.5rem; }
+  .progress-track {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--aws), var(--success));
+    border-radius: 100px;
+    transition: width .4s cubic-bezier(0.34,1.56,0.64,1);
+    width: 0%;
+  }
+  .progress-label { font-size: 13px; color: var(--muted); }
+  .progress-label span { color: var(--text); font-weight: 600; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── BIG TIMER DISPLAY ── */
+  .timer-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .timer-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 4rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.05em;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+  .timer-display.running { color: var(--aws); }
+  .timer-display.break-time { color: var(--rest); }
+  .timer-label { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; font-family: 'DM Mono', monospace; }
+  .timer-btns { display: flex; gap: 10px; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; }
+  .timer-btn {
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all .15s;
+    letter-spacing: 0.02em;
+  }
+  .timer-btn.primary { background: var(--aws); color: #0d0f14; border-color: var(--aws); }
+  .timer-btn.primary:hover { background: #7dd3fc; }
+  .timer-btn.secondary { background: transparent; color: var(--muted); border-color: var(--border); }
+  .timer-btn.secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .timer-btn.break { background: rgba(74,222,128,0.15); color: var(--rest); border-color: rgba(74,222,128,0.3); }
+  .pom-counter { display: flex; gap: 8px; justify-content: center; margin-top: 1rem; }
+  .pom-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); transition: all .2s; }
+  .pom-indicator.done { background: var(--danger); border-color: var(--danger); }
+  .session-type-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 1rem; }
+  .type-btn {
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all .15s;
+  }
+  .type-btn.active.cscp { background: var(--cscp-dim); color: var(--cscp); border-color: rgba(245,158,11,0.4); }
+  .type-btn.active.aws { background: var(--aws-dim); color: var(--aws); border-color: rgba(56,189,248,0.4); }
+  .type-btn.active.review { background: var(--review-dim); color: var(--review); border-color: rgba(167,139,250,0.4); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .rules-grid { grid-template-columns: 1fr; }
+    .check-grid { grid-template-columns: 1fr; }
+    .timer-display { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Khushal's Study Command Center</div>
+  <h1>6-Month<br><span>Career Launch Plan</span></h1>
+  <p class="header-sub">CSCP + AWS Cloud Practitioner — built for an ADHD brain. Two tracks. Two exams. One career upgrade.</p>
+</header>
+
+<nav class="nav-wrap">
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('rules')">⚡ ADHD Rules</button>
+    <button class="nav-btn" onclick="switchTab('timer')">⏱ Timer</button>
+    <button class="nav-btn" onclick="switchTab('schedule')">📅 Schedule</button>
+    <button class="nav-btn" onclick="switchTab('cscp')">📦 CSCP Resources</button>
+    <button class="nav-btn" onclick="switchTab('aws')">☁️ AWS Resources</button>
+    <button class="nav-btn" onclick="switchTab('checklist')">✅ Setup Checklist</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ══ ADHD RULES ══ -->
+<div id="panel-rules" class="panel active">
+  <div class="section-label">The 6 rules — break these and the plan collapses</div>
+  <div class="rules-grid">
+    <div class="rule-card cscp">
+      <div class="rule-num">25</div>
+      <div class="rule-title">Pomodoro only</div>
+      <div class="rule-desc">25 min study. 5 min break. Never go longer. The timer is not optional — it's the whole system.</div>
+    </div>
+    <div class="rule-card aws">
+      <div class="rule-num">1</div>
+      <div class="rule-title">One topic per session</div>
+      <div class="rule-desc">CSCP one block, AWS the next. Never mix them in the same 25 minutes. Context switching destroys retention.</div>
+    </div>
+    <div class="rule-card review">
+      <div class="rule-num">2×</div>
+      <div class="rule-title">Max sessions per day</div>
+      <div class="rule-desc">Two Pomodoros on weekday evenings. More = burnout and quitting. Small and consistent beats marathon sessions every time.</div>
+    </div>
+    <div class="rule-card rest">
+      <div class="rule-num">3×</div>
+      <div class="rule-title">Recall after every session</div>
+      <div class="rule-desc">Close everything. Write 3 things you remember without looking. This doubles retention. Do not skip.</div>
+    </div>
+    <div class="rule-card cscp">
+      <div class="rule-num">FRI</div>
+      <div class="rule-title">Review day — no new material</div>
+      <div class="rule-desc">Fridays are for Anki flashcards and practice questions only. Reviewing what you learned beats learning something new.</div>
+    </div>
+    <div class="rule-card aws">
+      <div class="rule-num">SUN</div>
+      <div class="rule-title">10-min weekly plan</div>
+      <div class="rule-desc">Every Sunday: check what you completed, set focus for next week. Replaces anxiety with clarity.</div>
+    </div>
+  </div>
+
+  <div class="alert warn">
+    <strong>⚠️ The #1 ADHD study killer:</strong> Doing nothing all week then studying 3 hours on Saturday. It feels productive. It builds nothing. Two focused evenings beat one marathon session every single time.
+  </div>
+  <div class="alert good">
+    <strong>✓ The cheat code:</strong> Tell ONE person about this plan. Accountability increases follow-through by ~33% — that's not motivational fluff, that's research. Text a friend today.
+  </div>
+  <div class="alert info">
+    <strong>Low-energy days are real.</strong> On those days: watch a 5-minute YouTube video about AWS or supply chain instead of doing nothing. Keeping the streak alive matters more than intensity.
+  </div>
+</div>
+
+<!-- ══ TIMER ══ -->
+<div id="panel-timer" class="panel">
+  <div class="section-label">Built-in pomodoro timer</div>
+  <div class="timer-section">
+    <div class="session-type-toggle">
+      <button class="type-btn active cscp" onclick="setType('cscp', this)">CSCP</button>
+      <button class="type-btn aws" onclick="setType('aws', this)">AWS</button>
+      <button class="type-btn review" onclick="setType('review', this)">Review</button>
+    </div>
+    <div class="timer-label" id="timer-label">Study session</div>
+    <div class="timer-display" id="timer-display">25:00</div>
+    <div class="pom-counter" id="pom-counter">
+      <div class="pom-indicator"></div>
+      <div class="pom-indicator"></div>
+      <div class="pom-indicator"></div>
+      <div class="pom-indicator"></div>
+    </div>
+    <div class="timer-btns">
+      <button class="timer-btn primary" id="start-btn" onclick="startTimer()">Start</button>
+      <button class="timer-btn secondary" onclick="resetTimer()">Reset</button>
+      <button class="timer-btn break" onclick="startBreak()">5-min break</button>
+    </div>
+  </div>
+  <div class="alert info">
+    <strong>How to use:</strong> Select your subject (CSCP or AWS), hit Start, and study until the alarm. Then write 3 things you remember, take a 5-min break, and decide if you want a second session or to stop for the day.
+  </div>
+  <div class="section-label">After each session — write these 3 things</div>
+  <div class="rules-grid">
+    <div class="rule-card aws" style="padding: 1rem 1.25rem;">
+      <div class="rule-num" style="font-size:1.5rem">1</div>
+      <div class="rule-title">What was the main topic?</div>
+      <div class="rule-desc">Name it in one sentence without looking at your notes.</div>
+    </div>
+    <div class="rule-card cscp" style="padding: 1rem 1.25rem;">
+      <div class="rule-num" style="font-size:1.5rem">2</div>
+      <div class="rule-title">What surprised you?</div>
+      <div class="rule-desc">Anything you didn't know or that was different from what you expected.</div>
+    </div>
+    <div class="rule-card review" style="padding: 1rem 1.25rem;">
+      <div class="rule-num" style="font-size:1.5rem">3</div>
+      <div class="rule-title">What was confusing?</div>
+      <div class="rule-desc">Flag it. Search it next session or add it to Anki as a question.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCHEDULE ══ -->
+<div id="panel-schedule" class="panel">
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cscp)"></div>CSCP (supply chain)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--aws)"></div>AWS Cloud</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--review)"></div>Review / flashcards</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--rest)"></div>Rest / plan</div>
+  </div>
+
+  <!-- Month 1 -->
+  <div class="section-label">Month 1 — orient yourself, no pressure</div>
+  <div class="week-block">
+    <div class="week-header" onclick="toggleWeek('w1')">
+      <div class="phase-dot" style="background:var(--aws)"></div>
+      <div class="week-title">Weeks 1–2 — foundations</div>
+      <div class="week-sub">Get accounts set up. Just watch videos. No pressure.</div>
+      <svg class="chev" id="chev-w1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="week-body" id="body-w1">
+      <div class="day-row">
+        <div class="day-name">MON</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — intro video</div>
+          <div class="day-note">Search "ASCM supply chain intro" on YouTube. Just watch, no notes required.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro (25 min)</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">TUE</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — "Cloud in 5 min" video</div>
+          <div class="day-note">freeCodeCamp YouTube — search "AWS basics explained". Watch only, no notes.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">WED</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — ASCM portal Module 1</div>
+          <div class="day-note">Create account at ascm.org → free learning resources → Module 1 reading.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">THU</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — Create free account + explore</div>
+          <div class="day-note">aws.amazon.com/free — make the account, click around the console. Make it real and tangible.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">FRI</div>
+        <div class="day-content">
+          <div class="pill review">Review — write 5 things you learned this week</div>
+          <div class="day-note">No new content. Just recall. Write on paper or in a notes app. No looking back allowed.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">SAT</div>
+        <div class="day-content"><div class="pill rest">Rest or makeup session if you missed a day</div></div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">SUN</div>
+        <div class="day-content"><div class="pill rest">10 min — plan next week, log progress</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Month 2 -->
+  <div class="section-label">Month 2 — build momentum</div>
+  <div class="week-block">
+    <div class="week-header" onclick="toggleWeek('w2')">
+      <div class="phase-dot" style="background:var(--cscp)"></div>
+      <div class="week-title">Weeks 3–6 — CSCP Domain 1 + AWS modules</div>
+      <div class="week-sub">Real studying begins. Alternate subjects every day.</div>
+      <svg class="chev" id="chev-w2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="week-body" id="body-w2">
+      <div class="day-row">
+        <div class="day-name">MON</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — Domain 1: supply chain design</div>
+          <div class="day-note">ASCM portal or Udemy CSCP course. Do 1 sub-module per Pomodoro. Don't rush ahead.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">TUE</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — Skill Builder Module 1</div>
+          <div class="day-note">skillbuilder.aws (free) → search "Cloud Practitioner Essentials" → Module 1. Built-in knowledge checks.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">WED</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — 10 practice questions</div>
+          <div class="day-note">ASCM sample questions. Do 10 max. Check answers immediately after each one — don't batch them.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">THU</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — Skill Builder Module 2</div>
+          <div class="day-note">EC2, storage, networking. Connect concepts to logistics: think of EC2 as a warehouse server you can spin up instantly.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">FRI</div>
+        <div class="day-content">
+          <div class="pill review">Anki flashcards — CSCP + AWS terms mixed</div>
+          <div class="day-note">15 min max. Just run through the deck. Flag cards you keep getting wrong.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Months 3–4 -->
+  <div class="section-label">Months 3–4 — deep study phase</div>
+  <div class="week-block">
+    <div class="week-header" onclick="toggleWeek('w3')">
+      <div class="phase-dot" style="background:var(--review)"></div>
+      <div class="week-title">Weeks 7–16 — CSCP Domains 2–3 + AWS exam prep</div>
+      <div class="week-sub">Heavier content. Practice questions become central.</div>
+      <svg class="chev" id="chev-w3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="week-body" id="body-w3">
+      <div class="day-row">
+        <div class="day-name">MON</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — Domain 2 or 3 new module</div>
+          <div class="day-note">Demand planning, inventory management, operations. One module per session. Use ASCM study guide as main reference.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">TUE</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — Tutorialsdojo (10 questions only)</div>
+          <div class="day-note">tutorialsdojo.com — do NOT do full exams yet. 10 questions, review every wrong answer before moving on.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">WED</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — scenario-based questions</div>
+          <div class="day-note">ASCM QBank scenario questions are harder than straight recall. Do them mid-week when energy is highest. Don't save for Friday.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">THU</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — Skill Builder remaining modules</div>
+          <div class="day-note">Work through Modules 3–11 at 1–2 per week. Don't rush. Understanding > coverage.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">FRI</div>
+        <div class="day-content">
+          <div class="pill review">Spaced repetition only — Anki deck review</div>
+          <div class="day-note">No new material. Flag all weak areas to revisit next week. 15 min max.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom-text">1 Pomodoro</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Months 5–6 -->
+  <div class="section-label">Months 5–6 — exam ready</div>
+  <div class="week-block">
+    <div class="week-header" onclick="toggleWeek('w4')">
+      <div class="phase-dot" style="background:var(--rest)"></div>
+      <div class="week-title">Weeks 17–24 — mock exams + book the tests</div>
+      <div class="week-sub">Score 75%+ on CSCP mock. 80%+ on AWS mock. Then book both.</div>
+      <svg class="chev" id="chev-w4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="week-body" id="body-w4">
+      <div class="day-row">
+        <div class="day-name">MON</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — full 150-question timed mock</div>
+          <div class="day-note">ASCM QBank full mock exam. Target: 75%+ before scheduling real exam. Under that = keep studying, don't panic.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom"></div><div class="pom-text">3 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">TUE</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — full 65-question timed mock</div>
+          <div class="day-note">Tutorialsdojo timed practice exam. Target 80%+ consistently before booking. One bad score is fine — look for the trend.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom"></div><div class="pom-text">3 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">WED</div>
+        <div class="day-content">
+          <div class="pill cscp">CSCP — review every wrong answer</div>
+          <div class="day-note">Read the explanation for every wrong answer. Add each one to Anki as a card. Do not skip this — it's where the real learning happens.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">THU</div>
+        <div class="day-content">
+          <div class="pill aws">AWS — targeted weak-area study</div>
+          <div class="day-note">Identify 2–3 service areas where you keep failing. Watch specific Skill Builder mini-modules for those topics only.</div>
+          <div class="pom-row"><div class="pom"></div><div class="pom"></div><div class="pom-text">2 Pomodoros</div></div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-name">FRI</div>
+        <div class="day-content">
+          <div class="pill rest">Book both exams when scores hit target</div>
+          <div class="day-note">AWS CCP: Pearson VUE online (~$100, can take at home). CSCP: ASCM testing center. Booking creates real commitment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CSCP RESOURCES ══ -->
+<div id="panel-cscp" class="panel">
+  <div class="section-label">Start here — primary study material</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--cscp-dim);color:var(--cscp)">UD</div>
+    <div class="res-body">
+      <div class="res-name">Udemy — CSCP Complete Prep Course</div>
+      <div class="res-tags">
+        <span class="tag paid">~$15 on sale</span>
+        <span class="tag adhd">Video-first</span>
+        <span class="tag top">Best pick</span>
+      </div>
+      <div class="res-why">Video lectures you watch at 1.5× speed. Perfect for ADHD — visual + audio together. Search "CSCP prep" on Udemy, sort by rating. <strong>Udemy always has sales — never pay full price.</strong> Check before buying.</div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--aws-dim);color:var(--aws)">SC</div>
+    <div class="res-body">
+      <div class="res-name">ASCM Learning Portal (official)</div>
+      <div class="res-tags">
+        <span class="tag paid">~$225/yr membership</span>
+        <span class="tag adhd">Short modules + quizzes</span>
+      </div>
+      <div class="res-why">Official source. Membership includes exam discount that offsets cost. Short video modules with built-in knowledge checks. Go to ascm.org → Learning. The membership also gives you access to the QBank (below).</div>
+    </div>
+  </div>
+
+  <div class="section-label">Practice questions — the most important tool</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--review-dim);color:var(--review)">QB</div>
+    <div class="res-body">
+      <div class="res-name">ASCM QBank — official question bank</div>
+      <div class="res-tags">
+        <span class="tag paid">~$199</span>
+        <span class="tag top">Most realistic questions</span>
+      </div>
+      <div class="res-why">1,000+ questions that match the real exam format exactly. This is the single most important purchase for passing. Use it in blocks of 10–20 questions — not full exams — until Month 5. Always review wrong answers immediately.</div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--rest-dim);color:var(--rest)">YT</div>
+    <div class="res-body">
+      <div class="res-name">YouTube — CSCP domain walkthroughs</div>
+      <div class="res-tags">
+        <span class="tag free">Free</span>
+        <span class="tag adhd">Great for commutes</span>
+      </div>
+      <div class="res-why">Search "CSCP domain 1 review" or "CSCP exam tips 2024". Several supply chain professionals post free walkthroughs. Use these on low-energy days or during your commute when reading feels impossible.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Memory system — non-negotiable</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:rgba(248,113,113,0.12);color:#f87171">AN</div>
+    <div class="res-body">
+      <div class="res-name">Anki — spaced repetition flashcards</div>
+      <div class="res-tags">
+        <span class="tag free">Free</span>
+        <span class="tag adhd">ADHD essential</span>
+        <span class="tag top">Daily habit</span>
+      </div>
+      <div class="res-why">Download Anki free on phone + desktop. Search "CSCP Anki deck" on AnkiWeb — community decks already exist. Use for 10 minutes every morning with your coffee. Spaced repetition is the scientifically proven best memory tool for ADHD brains. Do not skip this.</div>
+    </div>
+  </div>
+
+  <div class="alert good">
+    <strong>✓ Minimum viable CSCP stack:</strong> Udemy video course ($15) + ASCM QBank ($199) + Anki (free). That's it. Don't buy anything else until you've finished both of those.
+  </div>
+</div>
+
+<!-- ══ AWS RESOURCES ══ -->
+<div id="panel-aws" class="panel">
+  <div class="section-label">Start here — official free content</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--cscp-dim);color:var(--cscp)">SB</div>
+    <div class="res-body">
+      <div class="res-name">AWS Skill Builder — Cloud Practitioner Essentials</div>
+      <div class="res-tags">
+        <span class="tag free">Free</span>
+        <span class="tag adhd">11 short modules</span>
+        <span class="tag top">Start here</span>
+      </div>
+      <div class="res-why">Go to skillbuilder.aws → search "Cloud Practitioner Essentials". Official AWS course with 11 modules, each 20–40 min with built-in knowledge checks. Perfect Pomodoro-sized chunks. This is your primary study material.</div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--aws-dim);color:var(--aws)">fCC</div>
+    <div class="res-body">
+      <div class="res-name">freeCodeCamp — AWS CCP Full Course (YouTube)</div>
+      <div class="res-tags">
+        <span class="tag free">Free</span>
+        <span class="tag adhd">Video, chapters labeled</span>
+      </div>
+      <div class="res-why">Search "freeCodeCamp AWS Cloud Practitioner" on YouTube. 14-hour full course broken into chapters — you can jump in and out without losing your place. Watch at 1.25–1.5× speed. Use on days when reading feels impossible.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Practice exams — do not skip these</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--rest-dim);color:var(--rest)">TD</div>
+    <div class="res-body">
+      <div class="res-name">Tutorialsdojo — AWS CCP Practice Exams</div>
+      <div class="res-tags">
+        <span class="tag paid">~$15</span>
+        <span class="tag top">Best value</span>
+        <span class="tag adhd">Instant feedback</span>
+      </div>
+      <div class="res-why">The gold standard for AWS practice exams. Instant answer explanations after each question. Has a "review mode" so you can pause and come back. Go to tutorialsdojo.com. Worth every dollar — this is the tool that actually gets people to pass.</div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:rgba(248,113,113,0.12);color:#f87171">EP</div>
+    <div class="res-body">
+      <div class="res-name">ExamPro — AWS CCP Free Practice Questions</div>
+      <div class="res-tags">
+        <span class="tag free">Free tier</span>
+      </div>
+      <div class="res-why">exampro.co — Andrew Brown's platform. Free tier has enough questions to supplement Tutorialsdojo. His YouTube explanations are clear and not boring. Use as a second opinion on weak areas.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Low-energy days — keep the streak alive</div>
+
+  <div class="res-card">
+    <div class="res-icon" style="background:var(--review-dim);color:var(--review)">YT</div>
+    <div class="res-body">
+      <div class="res-name">YouTube — "AWS [service] in 5 minutes" videos</div>
+      <div class="res-tags">
+        <span class="tag free">Free</span>
+        <span class="tag adhd">Short format</span>
+      </div>
+      <div class="res-why">On low-energy evenings, watching 2–3 short AWS service explanation videos counts as studying. It keeps momentum alive without burning out. Search any service name + "explained" or check the Fireship channel on YouTube.</div>
+    </div>
+  </div>
+
+  <div class="alert good">
+    <strong>✓ Minimum viable AWS stack:</strong> AWS Skill Builder (free) + Tutorialsdojo ($15) + Anki (free). Total cost: $15. That's the whole stack. Pass rate with this combination is very high.
+  </div>
+</div>
+
+<!-- ══ CHECKLIST ══ -->
+<div id="panel-checklist" class="panel">
+  <div class="section-label">Complete before your first study session</div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="progress-label"><span id="prog-done">0</span> of 10 setup tasks complete</div>
+  </div>
+  <div class="check-grid" id="checklist">
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Create ASCM account at ascm.org (free to browse, paid to study)</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Create AWS free tier account at aws.amazon.com/free</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Install Anki on phone AND desktop — ankiweb.net</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Download a CSCP Anki deck from AnkiWeb (search "CSCP")</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Sign up for AWS Skill Builder at skillbuilder.aws (free)</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Install a Pomodoro timer app — Forest or Be Focused (or use this page's timer)</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Block Mon–Fri evening study time in your phone calendar (recurring)</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Buy Tutorialsdojo AWS CCP practice exams (~$15) at tutorialsdojo.com</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Update LinkedIn headline: "Supply Chain Manager | CS Background | ERP & Cloud | Open to Remote"</div>
+    </div>
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Tell ONE person about this plan today — accountability is the ADHD cheat code</div>
+    </div>
+  </div>
+  <div class="alert info">
+    <strong>Once checklist is done:</strong> Go to the Schedule tab → Week 1 → Monday. That's your first task. One day at a time.
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Khushal Noori — 6-month study plan · CSCP + AWS Cloud Practitioner · built for ADHD brains
+</footer>
+
+<script>
+// ── TAB NAVIGATION ──
+function switchTab(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ── WEEK TOGGLE ──
+function toggleWeek(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+// ── CHECKLIST ──
+function toggleCheck(el) {
+  const box = el.querySelector('.check-box');
+  const checked = box.classList.toggle('checked');
+  el.classList.toggle('done', checked);
+  if (checked) box.textContent = '✓'; else box.textContent = '';
+  const total = document.querySelectorAll('.check-item').length;
+  const done = document.querySelectorAll('.check-box.checked').length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-done').textContent = done;
+}
+
+// ── POMODORO TIMER ──
+let timerInterval = null;
+let secondsLeft = 25 * 60;
+let isRunning = false;
+let isBreak = false;
+let pomsDone = 0;
+let currentType = 'cscp';
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+function updateDisplay() {
+  const el = document.getElementById('timer-display');
+  el.textContent = formatTime(secondsLeft);
+  el.className = 'timer-display' + (isRunning && !isBreak ? ' running' : '') + (isBreak ? ' break-time' : '');
+}
+
+function updatePoms() {
+  const indicators = document.querySelectorAll('.pom-indicator');
+  indicators.forEach((ind, i) => {
+    ind.classList.toggle('done', i < pomsDone);
+  });
+}
+
+function startTimer() {
+  if (isRunning) {
+    clearInterval(timerInterval);
+    isRunning = false;
+    document.getElementById('start-btn').textContent = 'Resume';
+    return;
+  }
+  isRunning = true;
+  isBreak = false;
+  document.getElementById('start-btn').textContent = 'Pause';
+  document.getElementById('timer-label').textContent = currentType.toUpperCase() + ' study session';
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      pomsDone = Math.min(pomsDone + 1, 4);
+      if (pomsDone >= 4) pomsDone = 0;
+      updatePoms();
+      document.getElementById('start-btn').textContent = 'Start';
+      document.getElementById('timer-label').textContent = 'Session complete! Write 3 things you remember.';
+      secondsLeft = 25 * 60;
+      updateDisplay();
+      try { new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA...').play(); } catch(e) {}
+      alert('Session complete! Write 3 things you remember without looking at your notes. Then take a 5-minute break.');
+    }
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  isBreak = false;
+  secondsLeft = 25 * 60;
+  document.getElementById('start-btn').textContent = 'Start';
+  document.getElementById('timer-label').textContent = 'Study session';
+  updateDisplay();
+}
+
+function startBreak() {
+  clearInterval(timerInterval);
+  isRunning = true;
+  isBreak = true;
+  secondsLeft = 5 * 60;
+  document.getElementById('timer-label').textContent = '5-min break — step away from screen';
+  document.getElementById('start-btn').textContent = 'Pause break';
+  updateDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      isBreak = false;
+      secondsLeft = 25 * 60;
+      document.getElementById('start-btn').textContent = 'Start';
+      document.getElementById('timer-label').textContent = 'Break over — ready for next session?';
+      updateDisplay();
+      alert('Break over! Ready for your next Pomodoro?');
+    }
+  }, 1000);
+}
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active', 'cscp', 'aws', 'review'));
+  btn.classList.add('active', type);
+  if (!isRunning) {
+    document.getElementById('timer-label').textContent = type.toUpperCase() + ' study session';
+  }
+}
+
+// Init
+updateDisplay();
+updatePoms();
+</script>
+</body>
+</html>
